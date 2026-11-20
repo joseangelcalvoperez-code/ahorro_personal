@@ -8,6 +8,6 @@
 // Si los dejas vacíos, la app arranca en MODO LOCAL DE PRUEBA: los datos se guardan solo en este
 // navegador y no hay usuarios. Útil para probarla antes de conectar la base de datos.
 export const CONFIG = {
-  url: '',
-  anonKey: ''
+  url: 'https://zazhbpacszkmgxmpsqnx.supabase.co/rest/v1/',
+  anonKey: 'sb_secret_3StISRzEbvxca6UgDprgXQ_z9VN39aK'
 };
