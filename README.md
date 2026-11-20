@@ -36,8 +36,16 @@ Cada movimiento tiene una huella SHA-256 de `cuenta | fecha | concepto | importe
 6. **Project Settings → API**: copia *Project URL* y la clave *anon public* en `js/config.js`. Estas dos claves son públicas por diseño; **nunca** pongas la `service_role`.
 
 ### 2. Publicarla (gratis)
-- **Cloudflare Pages** (recomendado: admite repos privados): *Workers & Pages → Create → Pages → Connect to Git*, elige este repositorio, deja vacíos el comando de build y pon `/` como directorio de salida.
-- GitHub Pages en repositorios privados exige un plan de pago, por eso no es la primera opción.
+**GitHub Pages** (la web queda en `https://<usuario>.github.io/ahorro_personal/`):
+
+1. En el repositorio: *Settings → Pages*.
+2. *Build and deployment → Source:* **Deploy from a branch**.
+3. *Branch:* `main` y carpeta `/ (root)`. Guardar.
+4. En 1–2 minutos aparece la dirección arriba de esa misma pantalla.
+
+Requisito: Pages es gratis solo con repositorio **público**. Con repositorio privado hace falta GitHub Pro (gratis con el GitHub Student Developer Pack). Aunque el repositorio sea privado, la web publicada es accesible por URL; lo que la protege es el inicio de sesión de Supabase.
+
+Alternativa: **Cloudflare Pages**, que admite repositorios privados gratis (*Workers & Pages → Create → Pages → Connect to Git*, sin comando de build y `/` como directorio de salida).
 
 Cada `git push` a `main` vuelve a publicar la web.
 
