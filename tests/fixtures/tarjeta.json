@@ -1,0 +1,15 @@
+[
+  [null, null, null, null],
+  [null, null, null, null],
+  [null, null, null, null],
+  [null, null, null, null],
+  ["Información de movimientos de tarjetas", null, null, null],
+  [null, null, null, null],
+  ["fecha", "concepto", "fecha valor", "importe de la operación"],
+  [null, null, null, null],
+  ["06/10/2026", "COMPRA EN SUPERMERCADO EJEMPLO", "07/10/2026", -80.05],
+  ["06/10/2026", "COMPRA EN CAFE EJEMPLO", "07/10/2026", "-2,5"],
+  ["06/10/2026", "COMPRA EN CAFE EJEMPLO", "07/10/2026", "-2,5"],
+  ["10/10/2026", "- IRUN      /BIDEGI A-8 GIPU", "17/10/2026", -3.15],
+  ["13/10/2026", "COMPRA EN TIENDA SIN REGLA", "14/10/2026", -57.98]
+]

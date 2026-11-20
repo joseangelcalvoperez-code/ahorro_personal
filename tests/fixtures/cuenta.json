@@ -1,0 +1,17 @@
+[
+  [null, null, null, null, null],
+  [null, null, null, null, null],
+  [null, null, null, null, null],
+  [null, null, null, null, null],
+  ["Movimientos de cuenta", null, null, null, null],
+  [null, null, null, null, null],
+  ["fecha", "concepto", "fecha valor", "importe", "saldo"],
+  [null, null, null, null, null],
+  ["02/10/2026", "NOMINA EMPRESA EJEMPLO", "02/10/2026", 2000, 3000],
+  ["03/10/2026", "ENVIO BIZUM cena", "03/10/2026", -20, 2980],
+  ["03/10/2026", "ENVIO BIZUM cena", "03/10/2026", -20, 2960],
+  ["05/10/2026", "RECIBO AUTOPISTA", "05/10/2026", -30.5, 2929.5],
+  ["01/11/2026", "OP.NET Aportacion mes", "01/11/2026", -900, 2029.5],
+  ["01/11/2026", "TARJ.CRDTO 1234567890120000", "01/11/2026", -300, 1729.5],
+  ["15/11/2026", "TRASPASO A FONDO PATRIMONIO", "15/11/2026", -100, 1629.5]
+]

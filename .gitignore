@@ -1,0 +1,9 @@
+# Extractos del banco: nunca al repositorio
+*.xls
+*.xlsx
+*.csv
+
+node_modules/
+.env
+.env.*
+.DS_Store
