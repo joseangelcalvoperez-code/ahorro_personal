@@ -9,5 +9,5 @@
 // navegador y no hay usuarios. Útil para probarla antes de conectar la base de datos.
 export const CONFIG = {
   url: 'https://zazhbpacszkmgxmpsqnx.supabase.co/rest/v1/',
-  anonKey: 'sb_secret_3StISRzEbvxca6UgDprgXQ_z9VN39aK'
+  anonKey: 'sb_publishable_fhoZjx74srrLWCgBfOLvrw_bhT6ojni'
 };
