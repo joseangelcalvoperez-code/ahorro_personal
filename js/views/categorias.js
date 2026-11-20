@@ -36,7 +36,7 @@ export function renderCategorias(root) {
         <p class="small muted">Las de tipo «Transferencia interna» no cuentan como gasto ni como ingreso. «Aportación» es salida en tu cuenta e ingreso en la conjunta.</p>
       </section>
       <section class="card"><h2>Reglas automáticas</h2>
-        <p class="small muted">Si el concepto contiene la palabra, se asigna la categoría. Gana la regla con menor número.</p>
+        <p class="small muted">Si el concepto contiene la palabra, se asigna la categoría. Gana la regla con menor número. Pon <code>=</code> delante para que coincida solo con palabras completas (<code>=BAR</code> no casa con BARAKALDO).</p>
         <div class="tablewrap"><table>
           <thead><tr><th class="r">Nº</th><th>Contiene</th><th>Categoría</th><th><span class="sr">Borrar</span></th></tr></thead>
           <tbody>${rules.map((r) => `<tr data-id="${r.id}">

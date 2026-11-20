@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { parseRows, parseDate, parseAmount, maskConcept, detectLayout } from '../js/lib/parser.js';
 import { withHashes } from '../js/lib/hash.js';
-import { categorize, suggestKeyword } from '../js/lib/categorize.js';
+import { categorize, matches, suggestKeyword } from '../js/lib/categorize.js';
 import { computeStats, trend } from '../js/lib/stats.js';
 import { DEFAULT_CATEGORIES, DEFAULT_RULES } from '../js/lib/defaults.js';
 import { eur, addMonths } from '../js/lib/format.js';
@@ -41,7 +41,7 @@ test('tarjeta: sin saldo y con importes como texto', () => {
   assert.equal(r.kind, 'tarjeta');
   assert.equal(r.rows.length, 5);
   assert.equal(r.rows[1].amount, -2.5);
-  assert.equal(r.rows[3].concept, '- IRUN /BIDEGI A-8 GIPU');
+  assert.equal(r.rows[3].concept, '- PEAJE /AUTOPISTA A-8 TRAMO');
   assert.equal(r.rows[0].balance, null);
 });
 
@@ -76,7 +76,7 @@ const rules = DEFAULT_RULES.map((r, i) => ({ id: `r${i}`, keyword: r.keyword, ca
 
 test('reglas por palabra clave y prioridad', () => {
   const id = (n) => byName[n].id;
-  assert.equal(categorize('COMPRA EN E S ALCAMPO IRUN', rules), id('Transporte')); // gasolinera antes que Alcampo
+  assert.equal(categorize('COMPRA EN E S ALCAMPO CIUDAD', rules), id('Transporte')); // gasolinera antes que Alcampo
   assert.equal(categorize('COMPRA EN ALCAMPO', rules), id('Alimentación'));
   assert.equal(categorize('TARJ.CRDTO ****0000', rules), id('Liquidación de tarjeta'));
   assert.equal(categorize('COMPRA EN TIENDA SIN REGLA', rules), null);
@@ -113,7 +113,7 @@ test('ahorro personal: ingresos - gastos - aportaciones; tarjeta y traspasos no 
   assert.equal(oct.ingresos, 2000);
   assert.equal(oct.gastos, 216.68);
   assert.equal(oct.ahorro, 1783.32);
-  assert.equal(oct.sinCategoria, 3); // los dos bizum y la tienda sin regla
+  assert.equal(oct.sinCategoria, 1); // solo la tienda sin regla (los Bizum de «cena» ya se clasifican)
   assert.equal(oct.tarjetaMes, 146.18);
   const nov = computeStats(txs, { ...ctx, scope: 'personal', month: '2026-11' });
   assert.equal(nov.gastos, 0); // TARJ.CRDTO y traspaso a patrimonio no son gasto
@@ -143,4 +143,55 @@ test('tendencia y formato', async () => {
   assert.equal(eur(1234.5), '1.234,50 €');
   assert.equal(eur(-5, { sign: true }), '−5,00 €');
   assert.equal(eur(5, { sign: true }), '+5,00 €');
+});
+
+// --- motor de reglas y categorías por defecto ---
+const catOf = (concept) => cats.find((c) => c.id === categorize(concept, rules))?.name ?? null;
+
+test('palabra completa con "=": BAR no casa con BARAKALDO; E.S y E S valen igual', () => {
+  assert.equal(matches('PLK 10 BARAKALDO', '=BAR'), false);
+  assert.equal(matches('BAR GULI POOL', '=BAR'), true);
+  assert.equal(matches('COMPRA EN E.S HERNANI', '=E S'), true);
+  assert.equal(matches('COMPRA EN E S ALCAMPO', '=E S'), true);
+  assert.equal(matches('COMPRA EN ARTE S', '=E S'), false);
+  assert.equal(matches('CAFETERIA EDER', 'CAFE'), true); // sin "=", contiene
+  assert.equal(matches('PECCATOZARAUTZ', '=ZARA'), false); // ZARA solo como palabra suelta
+});
+
+test('conceptos bancarios clave no se cuentan como ingreso ni gasto', () => {
+  assert.equal(catOf('PAGO RECIBO ****1234'), 'Liquidación de tarjeta'); // abono en el Excel de la tarjeta
+  assert.equal(catOf('TARJ.CRDTO ****1234'), 'Liquidación de tarjeta'); // cargo en el Excel de la cuenta
+  assert.equal(catOf('OP.NET APORTACION MES'), 'Aportación a la conjunta');
+  assert.equal(catOf('TRASPASO A FONDO'), 'Ahorro e inversión');
+  assert.equal(catOf('DISP. PTM- 123'), 'Compra de vivienda y extraordinarios');
+  assert.equal(catOf('GESTORIA PROV FONDOS'), 'Compra de vivienda y extraordinarios');
+  assert.equal(catOf('CUOTA PTMO 123'), 'Hipoteca o alquiler');
+  assert.equal(catOf('CAMPANA NOMINA'), 'Otros ingresos');
+  assert.equal(catOf('NOMINA EMPRESA'), 'Nómina');
+});
+
+test('reglas por defecto: casos habituales y orden de prioridad', () => {
+  assert.equal(catOf('DESC.CAMPANA SEG AUTOS'), 'Seguros');
+  assert.equal(catOf('BANCO SEG. VIDA'), 'Seguros');
+  assert.equal(catOf('MOVISTAR PLUS'), 'Ocio y suscripciones'); // antes que la operadora
+  assert.equal(catOf('RECIBO MOVISTAR'), 'Suministros y telecom');
+  assert.equal(catOf('PAYPAL *ITUNESAPPST APPLE'), 'Ocio y suscripciones'); // antes que PAYPAL genérico
+  assert.equal(catOf('WWW.AMAZON ES'), 'Compras online');
+  assert.equal(catOf('AMAZON PRIME'), 'Ocio y suscripciones');
+  assert.equal(catOf('COMPRA EN ZARA'), 'Ropa');
+  assert.equal(catOf('ZARAUTZ SOMETHING'), null);
+  assert.equal(catOf('ENVIO BIZUM pizza'), 'Restauración'); // regla concreta antes que el respaldo Bizum
+  assert.equal(catOf('ENVIO BIZUM regalo'), 'Regalos');
+  assert.equal(catOf('ENVIO BIZUM algo cualquiera'), 'Bizum y varios'); // respaldo
+  assert.equal(catOf('DEVOLUCION LEROY MERLIN'), 'Hogar y equipamiento');
+  assert.equal(catOf('DEVOLUCION 123 TIENDA'), 'Otros');
+  assert.equal(catOf('PAGO CAJERO ****1234'), 'Efectivo');
+  assert.equal(catOf('LIQ. DE INT.HASTA 30.09'), 'Comisiones bancarias');
+});
+
+test('categorías por defecto: nombres únicos y reglas apuntan a categorías que existen', () => {
+  const names = new Set(DEFAULT_CATEGORIES.map((c) => c.name));
+  assert.equal(names.size, DEFAULT_CATEGORIES.length);
+  for (const r of DEFAULT_RULES) assert.ok(names.has(r.category), `categoría inexistente: ${r.category}`);
+  assert.equal(new Set(DEFAULT_RULES.map((r) => r.priority)).size, DEFAULT_RULES.length); // prioridades únicas
 });

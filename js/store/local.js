@@ -17,7 +17,7 @@ function seed() {
       { id: uuid(), name: 'Tarjeta conjunta', scope: 'conjunta', type: 'tarjeta', owner_id: null }
     ],
     categories,
-    rules: DEFAULT_RULES.map((r, i) => ({ id: uuid(), keyword: r.keyword, category_id: byName[r.category], priority: (i + 1) * 10 })),
+    rules: DEFAULT_RULES.map((r, i) => ({ id: uuid(), keyword: r.keyword, category_id: byName[r.category], priority: r.priority ?? (i + 1) * 10 })),
     transactions: []
   };
 }

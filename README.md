@@ -21,6 +21,13 @@ App web para controlar el ahorro de dos personas: una cuenta personal y una tarj
 - **Conjunta:** aportaciones de los dos y otros ingresos − gastos comunes.
 - **Todo:** tus ingresos + aportación de tu pareja − gastos de ambas.
 
+## Categorías y reglas
+
+- Las categorías tienen un **tipo**: gasto, ingreso, aportación a la conjunta o transferencia interna (no cuenta). Hay una categoría de transferencia para la compra de vivienda y otros movimientos extraordinarios, de modo que no falsean el ahorro del mes.
+- Los abonos que el banco muestra en el Excel de la tarjeta al pagarla (`PAGO RECIBO`) y el cargo en la cuenta (`TARJ.CRDTO`) son ambos «Liquidación de tarjeta»: no son ni ingreso ni gasto.
+- Las reglas por defecto (`js/lib/defaults.js`) solo incluyen conceptos bancarios y cadenas de ámbito nacional. **Tus comercios locales y casos particulares se añaden como reglas desde la pantalla «Categorías y reglas»** (o con un SQL privado que no se sube al repositorio).
+- Sintaxis de una regla: `TEXTO` = el concepto contiene el texto; `=TEXTO` = solo como palabra completa (`=BAR` no coincide con BARAKALDO). Sin mayúsculas ni tildes. Gana la regla con menor número.
+
 ## Duplicados
 
 Cada movimiento tiene una huella SHA-256 de `cuenta | fecha | concepto | importe | saldo | nº de repetición`. La base de datos tiene `unique (account_id, hash)`, así que aunque subas el mismo Excel dos veces, o dos archivos que se solapan, o lo suban los dos a la vez, cada movimiento entra una sola vez. El nº de repetición distingue dos compras idénticas el mismo día. La pantalla de importación muestra cuántos son nuevos y cuántos se ignoran antes de guardar.
@@ -33,6 +40,7 @@ Cada movimiento tiene una huella SHA-256 de `cuenta | fecha | concepto | importe
 3. **Authentication → Sign In / Providers**: desactiva *Allow new users to sign up*.
 4. **SQL Editor**: ejecuta `supabase/01_schema.sql`.
 5. Abre `supabase/02_seed.sql`, sustituye al final los dos UUID (los ves en la lista de usuarios) y los nombres, y ejecútalo.
+   - Si ya habías ejecutado una versión anterior, ejecuta además `supabase/03_actualizar_categorias.sql`: renombra y crea categorías y sustituye las reglas por defecto sin tocar tus movimientos ni tus reglas propias. Después, en la app: *Categorías y reglas → Reaplicar reglas*.
 6. **Project Settings → API**: copia *Project URL* y la clave *anon public* en `js/config.js`. Estas dos claves son públicas por diseño; **nunca** pongas la `service_role`.
 
 ### 2. Publicarla (gratis)

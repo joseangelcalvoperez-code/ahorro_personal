@@ -7,3 +7,7 @@ node_modules/
 .env
 .env.*
 .DS_Store
+
+# Reglas personales (comercios locales): solo se ejecutan en Supabase, nunca al repositorio
+reglas_personales*.sql
+*privad*
